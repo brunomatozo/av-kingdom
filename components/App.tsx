@@ -17,9 +17,9 @@ const App: React.FC = () => {
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div className="min-h-screen selection:bg-[#C6A74A] selection:text-[#0B1C2D] bg-[#0B1C2D] relative">
-      {/* Texture Layer (Luxury Grain) - Dá uma textura de papel/filme premium ao site */}
-      <div className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+    <div className="min-h-screen selection:bg-[#C6A74A] selection:text-[#0B1C2D] bg-[#0B1C2D] relative font-sans">
+      {/* Texture Layer (Luxury Grain) - Camada de grão que dá o aspecto de site de luxo */}
+      <div className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.04] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       
       <Navbar onJoinClick={openModal} />
       <main>
@@ -29,15 +29,14 @@ const App: React.FC = () => {
         <Ecosystem />
         <GeminiInsightSection />
         
-        {/* Final CTA Section: Chamada Final Refinada */}
+        {/* Chamada Final de Impacto */}
         <section className="py-48 px-6 text-center bg-[#111111] relative overflow-hidden">
-          {/* Brilho de fundo */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-[#C6A74A]/5 blur-[150px] rounded-full pointer-events-none" />
           
           <div className="max-w-4xl mx-auto space-y-12 relative z-10">
             <h2 className="text-4xl md:text-6xl font-serif text-white">Pronto para assumir o governo?</h2>
             <p className="text-lg text-[#BFC3C9]/50 max-w-2xl mx-auto leading-relaxed font-light">
-              Junte-se a uma rede exclusiva de arquitetos de liderança que não aceitam o ruído, mas buscam a revelação.
+              Junte-se a uma rede exclusiva de arquitetos de liderança que buscam a revelação na montanha para governar no vale.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-10">
               <button 
