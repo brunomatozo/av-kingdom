@@ -2,10 +2,10 @@
 import { GoogleGenAI } from "@google/genai";
 
 export const getAVInsight = async (topic: string): Promise<string> => {
-  // Inicializa a IA usando a chave de ambiente
+  // Inicializa a IA usando a chave de ambiente injetada pela Vercel/GitHub
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
   
-  // Respostas de reserva caso a API falhe ou a chave não exista
+  // Respostas de reserva (Fallback) caso a API esteja fora do ar
   const fallbacks: Record<string, string> = {
     "Liderança": "A altitude da montanha revela o que a agitação do vale tenta esconder.",
     "Finanças": "Riqueza é recurso; governo é o que transforma recurso em legado eterno.",
@@ -33,7 +33,7 @@ export const getAVInsight = async (topic: string): Promise<string> => {
       }
     });
     
-    // Retorna o texto limpo
+    // Retorna o texto limpo da resposta do Gemini
     return response.text?.trim().replace(/^"|"$/g, '') || fallbacks[topic] || "O governo exige o equilíbrio entre a visão e a entrega.";
   } catch (error) {
     console.error("Erro Gemini:", error);
