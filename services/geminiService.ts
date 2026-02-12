@@ -2,10 +2,9 @@
 import { GoogleGenAI } from "@google/genai";
 
 export const getAVInsight = async (topic: string): Promise<string> => {
-  // Inicializa a IA usando a chave de ambiente injetada pela Vercel/GitHub
+  // Inicializa a IA usando a chave de ambiente
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
   
-  // Respostas de reserva (Fallback) caso a API esteja fora do ar
   const fallbacks: Record<string, string> = {
     "Liderança": "A altitude da montanha revela o que a agitação do vale tenta esconder.",
     "Finanças": "Riqueza é recurso; governo é o que transforma recurso em legado eterno.",
@@ -26,14 +25,13 @@ export const getAVInsight = async (topic: string): Promise<string> => {
       Com base na filosofia "Ascend for Vision, Venture for Execution", 
       gere um insight de governo profundo, soberano e altamente prático (máximo 120 caracteres) sobre: ${topic}. 
       Linguagem: Português BR. Tom: Minimalista, Profético e Autoritativo. 
-      Não use emojis. Não use hashtags. Não use introduções como "Aqui está".`,
+      Não use emojis. Não use introduções. Não cite o tópico na resposta.`,
       config: {
-        temperature: 0.7,
-        topP: 0.9,
+        temperature: 0.8,
+        topP: 0.95,
       }
     });
     
-    // Retorna o texto limpo da resposta do Gemini
     return response.text?.trim().replace(/^"|"$/g, '') || fallbacks[topic] || "O governo exige o equilíbrio entre a visão e a entrega.";
   } catch (error) {
     console.error("Erro Gemini:", error);
