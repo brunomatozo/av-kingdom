@@ -17,7 +17,10 @@ const App: React.FC = () => {
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div className="min-h-screen selection:bg-[#C6A74A] selection:text-[#0B1C2D]">
+    <div className="min-h-screen selection:bg-[#C6A74A] selection:text-[#0B1C2D] bg-[#0B1C2D] relative font-sans">
+      {/* Texture Layer (Luxury Grain) - Camada de grão que dá o aspecto de site de luxo */}
+      <div className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.04] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      
       <Navbar onJoinClick={openModal} />
       <main>
         <Hero onStartClick={openModal} />
@@ -26,17 +29,19 @@ const App: React.FC = () => {
         <Ecosystem />
         <GeminiInsightSection />
         
-        {/* Call to Action Section */}
-        <section className="py-32 px-6 text-center bg-[#111111]">
-          <div className="max-w-3xl mx-auto space-y-10">
-            <h2 className="text-4xl md:text-5xl font-serif text-white">Pronto para governar os dois reinos?</h2>
-            <p className="text-lg text-[#BFC3C9]/70">
-              Junte-se a uma rede de líderes comprometidos com a visão clara e a execução impecável.
+        {/* Chamada Final de Impacto */}
+        <section className="py-48 px-6 text-center bg-[#111111] relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-[#C6A74A]/5 blur-[150px] rounded-full pointer-events-none" />
+          
+          <div className="max-w-4xl mx-auto space-y-12 relative z-10">
+            <h2 className="text-4xl md:text-6xl font-serif text-white">Pronto para assumir o governo?</h2>
+            <p className="text-lg text-[#BFC3C9]/50 max-w-2xl mx-auto leading-relaxed font-light">
+              Junte-se a uma rede exclusiva de arquitetos de liderança que buscam a revelação na montanha para governar no vale.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-10">
               <button 
                 onClick={openModal}
-                className="w-full sm:w-auto px-12 py-5 bg-[#C6A74A] text-[#0B1C2D] font-bold uppercase tracking-widest hover:scale-105 transition-transform duration-300"
+                className="w-full sm:w-auto px-20 py-7 bg-[#C6A74A] text-[#0B1C2D] font-bold uppercase tracking-[0.3em] text-[12px] hover:scale-105 transition-all duration-500 shadow-[0_0_60px_rgba(198,167,74,0.1)]"
               >
                 Candidatar-se à Rede
               </button>
@@ -44,9 +49,9 @@ const App: React.FC = () => {
                 href={WHATSAPP_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-12 py-5 border border-[#C6A74A] text-[#C6A74A] font-bold uppercase tracking-widest hover:bg-[#C6A74A] hover:text-[#0B1C2D] transition-all"
+                className="w-full sm:w-auto px-20 py-7 border border-[#C6A74A]/30 text-[#C6A74A] font-bold uppercase tracking-[0.3em] text-[11px] hover:bg-[#C6A74A]/10 transition-all"
               >
-                Comunidade WhatsApp
+                WhatsApp Oficial
               </a>
             </div>
           </div>
