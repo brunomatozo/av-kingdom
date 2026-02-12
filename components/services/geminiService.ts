@@ -1,50 +1,42 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// Função para obter a API Key de forma segura
-const getApiKey = () => {
-  try {
-    // Em produção (Vercel/Netlify), o process.env.API_KEY estará disponível
-    return (typeof process !== 'undefined' && process.env.API_KEY) ? process.env.API_KEY : '';
-  } catch {
-    return '';
-  }
-};
-
 export const getAVInsight = async (topic: string): Promise<string> => {
-  const apiKey = getApiKey();
+  // Inicializa a IA usando a chave de ambiente
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
   
-  // Se não houver chave, retorna frases pré-definidas da filosofia AV
-  if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
-    const fallbacks: Record<string, string> = {
-      "Liderança": "A altitude da montanha revela o que a agitação do vale tenta esconder.",
-      "Finanças": "Riqueza é recurso; governo é o que transforma recurso em legado eterno.",
-      "Inovação": "Inovação sem revelação é apenas pressa tecnológica; o Reino inova pelo alinhamento.",
-      "Propósito": "Você não cria seu propósito, você o descobre na subida e o manifesta na descida.",
-      "Escalabilidade": "Só escala o que tem raízes profundas no solo da obediência estratégica.",
-      "Legado": "O legado não é o que você deixa para as pessoas, mas o que você deixa nelas."
-    };
+  // Respostas de reserva caso a API falhe ou a chave não exista
+  const fallbacks: Record<string, string> = {
+    "Liderança": "A altitude da montanha revela o que a agitação do vale tenta esconder.",
+    "Finanças": "Riqueza é recurso; governo é o que transforma recurso em legado eterno.",
+    "Inovação": "Inovação sem revelação é apenas pressa tecnológica; o Reino inova pelo alinhamento.",
+    "Propósito": "Você não cria seu propósito, você o descobre na subida e o manifesta na descida.",
+    "Escalabilidade": "Só escala o que tem raízes profundas no solo da obediência estratégica.",
+    "Legado": "O legado não é o que você deixa para as pessoas, mas o que você deixa nelas."
+  };
+
+  if (!process.env.API_KEY) {
     return fallbacks[topic] || "Subimos para ouvir. Descemos para agir.";
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    // Usando explicitamente o modelo Gemini 3 conforme solicitado
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Aja como o oráculo institucional da AV Kingdom Network. 
-      Com base na filosofia "Ascend for Vision, Venture for Execution" (A=Montanha/Revelação, V=Vale/Execução), 
-      gere um insight de liderança poderoso e curto (máximo 150 caracteres) sobre: ${topic}. 
-      Linguagem: Português BR. Tom: Sofisticado, Profético e Estratégico.`,
+      contents: `Aja como o Oráculo Estratégico da AV Kingdom Network. 
+      Com base na filosofia "Ascend for Vision, Venture for Execution", 
+      gere um insight de governo profundo, soberano e altamente prático (máximo 120 caracteres) sobre: ${topic}. 
+      Linguagem: Português BR. Tom: Minimalista, Profético e Autoritativo. 
+      Não use emojis. Não use hashtags. Não use introduções como "Aqui está".`,
       config: {
-        temperature: 0.8,
-        topP: 0.95,
+        temperature: 0.7,
+        topP: 0.9,
       }
     });
     
-    return response.text?.trim() || "A visão sem execução é alucinação; a execução sem visão é escravidão.";
+    // Retorna o texto limpo
+    return response.text?.trim().replace(/^"|"$/g, '') || fallbacks[topic] || "O governo exige o equilíbrio entre a visão e a entrega.";
   } catch (error) {
-    console.error("Erro na integração Gemini:", error);
-    return "O verdadeiro governo exige o equilíbrio entre a altitude da visão e a profundidade da entrega.";
+    console.error("Erro Gemini:", error);
+    return fallbacks[topic] || "O governo exige o equilíbrio entre a altitude da visão e a profundidade da entrega.";
   }
 };
