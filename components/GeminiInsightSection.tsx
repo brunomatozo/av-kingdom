@@ -1,38 +1,44 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getAVInsight } from '../services/geminiService';
-import { Sparkles, RefreshCw } from 'lucide-react';
+import { Sparkles, RefreshCw, Zap } from 'lucide-react';
 
 const GeminiInsightSection: React.FC = () => {
-  const [insight, setInsight] = useState<string>("Buscando visão estratégica...");
+  const [insight, setInsight] = useState<string>("");
+  const [displayedText, setDisplayedText] = useState<string>("");
   const [topic, setTopic] = useState<string>("Liderança");
   const [loading, setLoading] = useState<boolean>(true);
+  const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const topics = ["Finanças", "Inovação", "Gestão de Pessoas", "Legado", "Propósito", "Escalabilidade"];
+  const topics = ["Liderança", "Finanças", "Inovação", "Gestão", "Legado", "Propósito"];
+
+  // Efeito de Digitação (Typewriter)
+  const typeText = (text: string) => {
+    if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+    setDisplayedText("");
+    let i = 0;
+    typingTimerRef.current = setInterval(() => {
+      if (i < text.length) {
+        setDisplayedText((prev) => prev + text.charAt(i));
+        i++;
+      } else {
+        if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+      }
+    }, 30);
+  };
 
   const fetchInsight = useCallback(async (newTopic?: string) => {
     setLoading(true);
     const t = newTopic || topic;
+    
     try {
-      // Definimos um timeout de segurança para não travar a UI
-      const res = await Promise.race([
-        getAVInsight(t),
-        new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 8000))
-      ]);
+      const res = await getAVInsight(t);
       setInsight(res);
+      typeText(res);
     } catch (err) {
-      console.warn("Falha ao obter insight via Gemini, usando fallback local.", err);
-      // Fallback manual caso o serviço falhe completamente
-      const fallbacks: Record<string, string> = {
-        "Finanças": "Riqueza é recurso; governo é o que transforma recurso em legado eterno.",
-        "Inovação": "Inovação sem revelação é apenas pressa tecnológica.",
-        "Gestão de Pessoas": "Liderar é servir a visão através do desenvolvimento do próximo.",
-        "Legado": "O legado não é o que você deixa, mas quem você transforma.",
-        "Propósito": "Sua subida à montanha define a clareza da sua execução no vale.",
-        "Escalabilidade": "Só escala o que tem raízes profundas na verdade.",
-        "Liderança": "A altitude revela o que a agitação do vale oculta."
-      };
-      setInsight(fallbacks[t] || "O governo exige visão estratégica e execução precisa.");
+      const fallback = "A altitude revela o que a pressa oculta.";
+      setInsight(fallback);
+      typeText(fallback);
     } finally {
       setLoading(false);
     }
@@ -40,45 +46,67 @@ const GeminiInsightSection: React.FC = () => {
 
   useEffect(() => {
     fetchInsight();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+    };
   }, []);
 
   return (
-    <section className="py-24 bg-gradient-to-b from-[#111111] to-[#0B1C2D] scroll-mt-20">
-      <div className="max-w-4xl mx-auto px-6 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#C6A74A]/10 rounded-full border border-[#C6A74A]/20 mb-8">
-          <Sparkles size={14} className="text-[#C6A74A]" />
-          <span className="text-[10px] uppercase tracking-widest text-[#C6A74A] font-bold">IA-Powered AV Insights</span>
+    <section className="py-32 bg-gradient-to-b from-[#111111] to-[#0B1C2D] border-y border-white/5 relative overflow-hidden">
+      {/* Background Decorativo */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#C6A74A]/20 via-transparent to-transparent" />
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
+        <div className="inline-flex items-center gap-3 px-6 py-2 bg-[#C6A74A]/10 rounded-full border border-[#C6A74A]/20 mb-12 animate-pulse">
+          <Sparkles size={16} className="text-[#C6A74A]" />
+          <span className="text-[11px] uppercase tracking-[0.4em] text-[#C6A74A] font-black">Revelação em Tempo Real</span>
         </div>
 
-        <div className="space-y-12">
-          <div className="min-h-[160px] flex items-center justify-center relative">
-            {loading ? (
-              <div className="flex flex-col items-center gap-4">
-                <RefreshCw className="animate-spin text-[#C6A74A]" size={32} />
-                <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">Processando Visão...</span>
+        <div className="min-h-[220px] flex flex-col items-center justify-center space-y-12">
+          {loading && !displayedText ? (
+            <div className="flex flex-col items-center gap-6">
+              <div className="relative">
+                <RefreshCw className="animate-spin text-[#C6A74A]" size={48} />
+                <div className="absolute inset-0 blur-xl bg-[#C6A74A]/30 animate-pulse" />
               </div>
-            ) : (
-              <p className="text-2xl md:text-3xl font-serif text-white italic leading-relaxed animate-in fade-in duration-700">
-                "{insight}"
+              <span className="text-[10px] uppercase tracking-[0.5em] text-white/30 font-bold">Consultando a Montanha...</span>
+            </div>
+          ) : (
+            <div className="space-y-10 w-full">
+              <p className="text-3xl md:text-5xl font-serif text-white italic leading-[1.3] max-w-4xl mx-auto">
+                "{displayedText}"
+                <span className="inline-block w-1 h-8 bg-[#C6A74A] ml-2 animate-pulse" />
               </p>
-            )}
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-3">
-            {topics.map((t) => (
-              <button
-                key={t}
+              
+              <button 
+                onClick={() => fetchInsight()}
                 disabled={loading}
-                onClick={() => { setTopic(t); fetchInsight(t); }}
-                className={`px-4 py-1 text-[10px] uppercase tracking-widest border transition-all disabled:opacity-50 ${
-                  topic === t ? 'bg-[#C6A74A] text-[#0B1C2D] border-[#C6A74A]' : 'border-white/10 text-white/40 hover:text-white hover:border-white/30'
-                }`}
+                className="group flex items-center gap-3 mx-auto px-6 py-3 border border-[#C6A74A]/30 text-[#C6A74A] text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#C6A74A] hover:text-[#0B1C2D] transition-all disabled:opacity-30"
               >
-                {t}
+                <Zap size={14} className={loading ? "animate-bounce" : ""} />
+                {loading ? "Processando..." : "Gerar Nova Visão"}
               </button>
-            ))}
-          </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-16 flex flex-wrap justify-center gap-4">
+          {topics.map((t) => (
+            <button
+              key={t}
+              disabled={loading}
+              onClick={() => { setTopic(t); fetchInsight(t); }}
+              className={`px-6 py-2 text-[10px] uppercase tracking-[0.3em] font-bold border transition-all duration-500 ${
+                topic === t 
+                ? 'bg-[#C6A74A] text-[#0B1C2D] border-[#C6A74A] shadow-[0_0_20px_rgba(198,167,74,0.3)]' 
+                : 'border-white/10 text-white/40 hover:text-white hover:border-[#C6A74A]/50'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
         </div>
       </div>
     </section>
