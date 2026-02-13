@@ -13,8 +13,10 @@ const GeminiInsightSection: React.FC = () => {
 
   const typeText = useCallback((text: string) => {
     if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-    setDisplayedText("");
+    
     let i = 0;
+    setDisplayedText(""); // Limpa antes de começar
+    
     typingTimerRef.current = setInterval(() => {
       if (i < text.length) {
         setDisplayedText((prev) => prev + text.charAt(i));
@@ -29,17 +31,22 @@ const GeminiInsightSection: React.FC = () => {
     setLoading(true);
     const targetTopic = newTopic || topic;
     
-    // Pequeno delay visual para o usuário sentir a "busca"
+    // Feedback imediato: apaga o texto atual para mostrar que algo novo está vindo
     setDisplayedText(""); 
     
     try {
       const res = await getAVInsight(targetTopic);
       typeText(res);
     } catch (err) {
-      // Se até o serviço falhar (o que não deve ocorrer pelo try/catch interno dele), 
-      // usamos uma variação rápida aqui também.
-      const emergency = "A clareza precede o governo.";
-      typeText(emergency);
+      // Caso o serviço falhe e o fallback do serviço também falhe
+      const safetyPhrases = [
+        "O silêncio do monte precede o decreto no vale.",
+        "A visão é a única bússola que não falha na altitude.",
+        "Governar é manifestar o invisível com precisão.",
+        "A arquitetura do Reino é construída com revelação."
+      ];
+      const randomSafety = safetyPhrases[Math.floor(Math.random() * safetyPhrases.length)];
+      typeText(randomSafety);
     } finally {
       setLoading(false);
     }
@@ -65,49 +72,57 @@ const GeminiInsightSection: React.FC = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
-        <div className="inline-flex items-center gap-3 px-6 py-2 bg-[#C6A74A]/10 rounded-full border border-[#C6A74A]/20 mb-12 animate-pulse">
+        <div className="inline-flex items-center gap-3 px-6 py-2 bg-[#C6A74A]/10 rounded-full border border-[#C6A74A]/20 mb-12">
           <Sparkles size={16} className="text-[#C6A74A]" />
           <span className="text-[11px] uppercase tracking-[0.4em] text-[#C6A74A] font-black">Revelação em Tempo Real</span>
         </div>
 
-        <div className="min-h-[200px] flex flex-col items-center justify-center">
+        <div className="min-h-[220px] flex flex-col items-center justify-center">
           {loading && !displayedText ? (
-            <div className="flex flex-col items-center gap-6 animate-in fade-in duration-500">
-              <RefreshCw className="animate-spin text-[#C6A74A]" size={48} />
-              <span className="text-[10px] uppercase tracking-[0.5em] text-white/30 font-bold">Acessando a Montanha...</span>
+            <div className="flex flex-col items-center gap-6 animate-in fade-in duration-700">
+              <div className="relative">
+                <RefreshCw className="animate-spin text-[#C6A74A]" size={48} />
+                <div className="absolute inset-0 blur-2xl bg-[#C6A74A]/20 animate-pulse" />
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.5em] text-white/30 font-bold">Consultando a Montanha...</span>
             </div>
           ) : (
-            <div className="space-y-10 w-full animate-in zoom-in-95 duration-500">
-              <p className="text-3xl md:text-5xl font-serif text-white italic leading-[1.3] max-w-4xl mx-auto min-h-[1.5em]">
-                {displayedText ? `"${displayedText}"` : ""}
-                <span className="inline-block w-1 h-8 bg-[#C6A74A] ml-2 animate-pulse align-middle" />
-              </p>
+            <div className="space-y-12 w-full">
+              <div className="relative inline-block">
+                <p className="text-3xl md:text-5xl lg:text-6xl font-serif text-white italic leading-[1.3] max-w-4xl mx-auto min-h-[1.5em] px-4">
+                  {displayedText ? `"${displayedText}"` : ""}
+                  <span className="inline-block w-1.5 h-10 md:h-14 bg-[#C6A74A] ml-2 animate-pulse align-middle" />
+                </p>
+              </div>
               
               <button 
                 onClick={() => fetchInsight()}
                 disabled={loading}
-                className="group flex items-center gap-3 mx-auto px-6 py-3 border border-[#C6A74A]/30 text-[#C6A74A] text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#C6A74A] hover:text-[#0B1C2D] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                className="group relative flex items-center gap-4 mx-auto px-10 py-4 border border-[#C6A74A]/30 text-[#C6A74A] text-[10px] uppercase tracking-[0.4em] font-black hover:bg-[#C6A74A] hover:text-[#0B1C2D] transition-all disabled:opacity-20 shadow-lg hover:shadow-[#C6A74A]/20"
               >
-                <Zap size={14} className={loading ? "animate-bounce" : ""} />
+                <Zap size={14} className={loading ? "animate-bounce" : "group-hover:rotate-12 transition-transform"} />
                 {loading ? "Processando..." : "Gerar Nova Visão"}
               </button>
             </div>
           )}
         </div>
 
-        <div className="mt-16 flex flex-wrap justify-center gap-4">
+        <div className="mt-20 flex flex-wrap justify-center gap-3 md:gap-5">
           {topics.map((t) => (
             <button
               key={t}
               disabled={loading}
               onClick={() => handleTopicChange(t)}
-              className={`px-6 py-2 text-[10px] uppercase tracking-[0.3em] font-bold border transition-all duration-500 ${
+              className={`px-8 py-3 text-[10px] uppercase tracking-[0.3em] font-black border transition-all duration-500 relative overflow-hidden group ${
                 topic === t 
-                ? 'bg-[#C6A74A] text-[#0B1C2D] border-[#C6A74A] shadow-[0_0_20px_rgba(198,167,74,0.3)]' 
+                ? 'bg-[#C6A74A] text-[#0B1C2D] border-[#C6A74A] shadow-[0_0_30px_rgba(198,167,74,0.4)] scale-105' 
                 : 'border-white/10 text-white/40 hover:text-white hover:border-[#C6A74A]/50'
               }`}
             >
-              {t}
+              <span className="relative z-10">{t}</span>
+              {topic === t && (
+                <span className="absolute inset-0 bg-white/20 animate-pulse" />
+              )}
             </button>
           ))}
         </div>
