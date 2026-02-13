@@ -49,7 +49,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
     data.data_inscricao = new Date().toLocaleString('pt-BR');
 
     try {
-      if (API_URL === https://sheetdb.io/api/v1/eu9o7yopa185t") {
+      if (API_URL === "https://sheetdb.io/api/v1/eu9o7yopa185t") {
         // Modo demonstração se não houver URL
         console.log("Simulando envio de dados:", data);
         await new Promise(resolve => setTimeout(resolve, 2000));
