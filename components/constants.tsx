@@ -2,65 +2,95 @@
 import React from 'react';
 
 export const COLORS = {
-  primary: '#0B1C2D', // Deep Midnight Blue
-  secondary: '#111111', // Graphite Black
-  accent: '#C6A74A', // Metallic Gold
-  mutedAccent: '#4B5340', // Deep Olive / Muted Green (as seen in the logo image)
-  text: '#BFC3C9', // Steel Silver
+  primary: '#0B1C2D', // Azul Marinho Profundo
+  secondary: '#111111', // Preto Grafite
+  accent: '#C6A74A', // Ouro Metálico
+  mutedAccent: '#4B5340', // Oliva Profundo
+  text: '#BFC3C9', // Prata Aço
   white: '#FFFFFF'
 };
 
 /**
- * Logo Principal: Intersecção Λ e V
- * Design baseado na imagem: A (Λ) e V se cruzando perfeitamente.
+ * Logo Principal: Λ e V LADO A LADO
  */
 export const LogoAV: React.FC<{ className?: string }> = ({ className = "h-8" }) => (
   <svg 
-    viewBox="0 0 100 100" 
+    viewBox="0 0 160 100" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg" 
     className={className}
   >
-    {/* V - Vale (Execução) - Cor Oliva Profundo */}
     <path 
-      d="M20 25 L50 85 L80 25" 
-      stroke={COLORS.mutedAccent} 
-      strokeWidth="7" 
-      strokeLinecap="butt" 
-      strokeLinejoin="miter" 
-    />
-    {/* Λ - Montanha (Visão) - Cor Ouro */}
-    <path 
-      d="M20 75 L50 15 L80 75" 
+      d="M20 70 L45 20 L70 70" 
       stroke={COLORS.accent} 
-      strokeWidth="7" 
-      strokeLinecap="butt" 
-      strokeLinejoin="miter" 
+      strokeWidth="8" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+    />
+    <path 
+      d="M90 30 L115 80 L140 30" 
+      stroke={COLORS.mutedAccent} 
+      strokeWidth="8" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
     />
   </svg>
 );
 
 /**
- * Logo Minimal: Versão geométrica pura da intersecção.
+ * Logo Minimal: Versão com rótulos REVELAÇÃO e EXECUÇÃO
  */
 export const LogoAVMinimal: React.FC<{ className?: string }> = ({ className = "h-12" }) => (
   <svg 
-    viewBox="0 0 100 100" 
+    viewBox="0 0 200 140" 
     fill="none" 
     xmlns="http://www.w3.org/2000/svg" 
     className={className}
   >
+    {/* Rótulo Superior */}
+    <text 
+      x="50" 
+      y="20" 
+      fill={COLORS.accent} 
+      fontSize="10" 
+      fontWeight="bold" 
+      textAnchor="middle" 
+      letterSpacing="0.3em"
+      className="font-serif italic"
+    >
+      REVELAÇÃO
+    </text>
+
+    {/* Λ - Montanha (A) */}
     <path 
-      d="M15 25 L50 85 L85 25" 
-      stroke={COLORS.mutedAccent} 
-      strokeWidth="6" 
-      strokeLinejoin="miter"
-    />
-    <path 
-      d="M15 75 L50 15 L85 75" 
+      d="M20 90 L50 40 L80 90" 
       stroke={COLORS.accent} 
-      strokeWidth="6" 
-      strokeLinejoin="miter"
+      strokeWidth="10" 
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
+
+    {/* V - Vale (V) */}
+    <path 
+      d="M120 40 L150 90 L180 40" 
+      stroke={COLORS.mutedAccent} 
+      strokeWidth="10" 
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+
+    {/* Rótulo Inferior */}
+    <text 
+      x="150" 
+      y="120" 
+      fill={COLORS.mutedAccent} 
+      fontSize="10" 
+      fontWeight="bold" 
+      textAnchor="middle" 
+      letterSpacing="0.3em"
+      className="font-serif italic"
+    >
+      EXECUÇÃO
+    </text>
   </svg>
 );
