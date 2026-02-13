@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, MessageCircle } from 'lucide-react';
+import { X, CheckCircle2, MessageCircle, Loader2, AlertCircle } from 'lucide-react';
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -9,13 +9,19 @@ interface RegistrationModalProps {
 
 const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // URL DEFINITIVA CONFIGURADA
+  const API_URL: string = "https://sheetdb.io/api/v1/0vkaq23do67my"; 
   const WHATSAPP_LINK = "https://chat.whatsapp.com/Is9XdCmQv3MJ47xulK9TZY";
 
-  // Bloquear scroll do corpo quando o modal estiver aberto
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      setIsSubmitted(false); // Reset state when reopening
+      setIsSubmitted(false);
+      setIsLoading(false);
+      setError(null);
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -26,34 +32,74 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setError(null);
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const data: any = Object.fromEntries(formData.entries());
+    
+    // Adiciona data e hora local para a coluna 'data_inscricao'
+    data.data_inscricao = new Date().toLocaleString('pt-BR');
+
+    console.log("Iniciando envio para AV Kingdom Network...");
+
+    try {
+      // O SheetDB exige que os dados venham dentro de um array chamado "data"
+      const payload = {
+        data: [data]
+      };
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      
+      // O SheetDB retorna created: 1 quando tem sucesso
+      if (response.ok && (result.created === 1 || result.status === 201)) {
+        setIsSubmitted(true);
+      } else {
+        const errorMsg = result.error || "A planilha não aceitou os dados. Verifique se os nomes das colunas na Linha 1 estão exatamente como: nome, email, whatsapp, perfil, motivacao, data_inscricao";
+        throw new Error(errorMsg);
+      }
+    } catch (err: any) {
+      console.error("Erro na conexão com a planilha:", err);
+      setError(err.message || "Erro de conexão. Verifique sua internet ou a configuração da planilha.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const inputClasses = "w-full bg-[#111111] border border-white/10 p-3 text-white focus:border-[#C6A74A] outline-none transition-all placeholder:text-white/20";
-  const labelClasses = "block text-xs uppercase tracking-widest text-[#C6A74A] font-semibold mb-2";
-  const sectionTitleClasses = "text-xl font-serif text-white mb-6 border-l-2 border-[#C6A74A] pl-4";
+  const inputClasses = "w-full bg-[#111111] border border-white/10 p-4 text-white focus:border-[#C6A74A] outline-none transition-all placeholder:text-white/20 disabled:opacity-50 text-sm";
+  const labelClasses = "block text-[10px] uppercase tracking-[0.2em] text-[#C6A74A] font-bold mb-3";
+  const sectionTitleClasses = "text-xl font-serif text-white mb-8 border-l-2 border-[#C6A74A] pl-5";
 
   if (isSubmitted) {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#0B1C2D]/95 backdrop-blur-lg">
-        <div className="max-w-md w-full bg-[#111111] border border-[#C6A74A]/30 p-12 text-center space-y-8 relative shadow-2xl">
-          <button onClick={onClose} className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors">
+        <div className="max-w-md w-full bg-[#111111] border border-[#C6A74A]/30 p-12 text-center space-y-10 relative shadow-2xl">
+          <button onClick={onClose} className="absolute top-6 right-6 text-white/30 hover:text-white transition-colors">
             <X size={24} />
           </button>
           
           <div className="flex justify-center">
             <div className="relative">
-              <CheckCircle2 size={72} className="text-[#C6A74A]" />
-              <div className="absolute inset-0 bg-[#C6A74A] blur-2xl opacity-20 rounded-full" />
+              <CheckCircle2 size={80} className="text-[#C6A74A] animate-pulse" />
+              <div className="absolute inset-0 bg-[#C6A74A] blur-3xl opacity-20 rounded-full" />
             </div>
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-3xl font-serif text-white italic leading-tight">Inscrição Enviada com Sucesso</h2>
-            <p className="text-[#BFC3C9]/70 leading-relaxed text-sm">
-              Sua jornada AV começou. Nossa equipe de governança entrará em contato em breve. Enquanto isso, junte-se aos outros líderes em nossa comunidade oficial.
+            <h2 className="text-3xl font-serif text-white italic">Candidatura Recebida</h2>
+            <p className="text-[#BFC3C9]/60 leading-relaxed text-sm font-light">
+              Seus dados foram registrados em nossa arquitetura de governo. Junte-se à comunidade oficial abaixo.
             </p>
           </div>
 
@@ -62,16 +108,16 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
               href={WHATSAPP_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 w-full py-5 bg-[#C6A74A] text-[#0B1C2D] font-bold uppercase tracking-[0.15em] hover:bg-white transition-all shadow-lg active:scale-95"
+              className="flex items-center justify-center gap-4 w-full py-6 bg-[#C6A74A] text-[#0B1C2D] font-black uppercase tracking-[0.2em] text-xs hover:bg-white transition-all shadow-xl active:scale-95"
             >
-              <MessageCircle size={20} />
-              Junte-se à Comunidade
+              <MessageCircle size={18} />
+              Acessar WhatsApp
             </a>
             <button 
               onClick={onClose}
-              className="w-full py-3 text-white/40 hover:text-white text-[10px] uppercase tracking-widest transition-colors"
+              className="w-full py-3 text-white/30 hover:text-white text-[9px] uppercase tracking-[0.3em] transition-colors"
             >
-              Fechar
+              Voltar ao Site
             </button>
           </div>
         </div>
@@ -80,168 +126,95 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
   }
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#0B1C2D]/90 backdrop-blur-md overflow-y-auto flex justify-center items-start p-4 sm:p-6">
-      <div className="max-w-3xl w-full bg-[#0B1C2D] border border-white/10 relative my-4 sm:my-10 shadow-2xl flex flex-col">
-        {/* Header - Relativo para não seguir o scroll */}
-        <div className="bg-[#0B1C2D] border-b border-white/10 p-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-serif text-white">Inscrição AV Kingdom</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#C6A74A]">Maturidade em Visão e Execução</p>
+    <div className="fixed inset-0 z-[100] bg-[#0B1C2D]/90 backdrop-blur-md overflow-y-auto flex justify-center items-start p-4 sm:p-8">
+      <div className="max-w-3xl w-full bg-[#0B1C2D] border border-white/10 relative my-4 sm:my-12 shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col">
+        {/* Header do Modal */}
+        <div className="bg-[#0B1C2D] border-b border-white/10 p-8 flex items-center justify-between sticky top-0 z-20">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-serif text-white tracking-wide">Inscrição AV Kingdom</h2>
+            <p className="text-[9px] uppercase tracking-[0.4em] text-[#C6A74A] font-black">Architecture for Governance</p>
           </div>
-          <button onClick={onClose} className="text-white/40 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+          <button onClick={onClose} className="text-white/30 hover:text-white transition-colors p-3 hover:bg-white/5 rounded-full">
             <X size={24} />
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 sm:p-10 space-y-12">
+        {/* Mensagem de Erro */}
+        {error && (
+          <div className="mx-8 mt-8 p-5 bg-red-500/10 border border-red-500/30 text-red-200 text-xs flex items-start gap-4 animate-in fade-in slide-in-from-top-4">
+            <AlertCircle size={20} className="flex-shrink-0 text-red-500" />
+            <span className="leading-relaxed">{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="p-8 sm:p-12 space-y-14">
           
-          {/* Sessão 1: Identificação */}
-          <div className="space-y-6">
-            <h3 className={sectionTitleClasses}>Dados Pessoais</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className={labelClasses}>Nome Completo *</label>
-                <input required type="text" placeholder="Sua resposta" className={inputClasses} />
+          {/* Sessão 1: Identidade */}
+          <div className="space-y-8">
+            <h3 className={sectionTitleClasses}>01. Identidade</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className={labelClasses}>Nome Completo</label>
+                <input required name="nome" type="text" placeholder="Como devemos chamá-lo?" className={inputClasses} disabled={isLoading} />
               </div>
-              <div>
-                <label className={labelClasses}>E-mail *</label>
-                <input required type="email" placeholder="Seu e-mail" className={inputClasses} />
+              <div className="space-y-2">
+                <label className={labelClasses}>E-mail Corporativo/Pessoal</label>
+                <input required name="email" type="email" placeholder="seu@email.com" className={inputClasses} disabled={isLoading} />
               </div>
-              <div className="md:col-span-2">
-                <label className={labelClasses}>Telefone / WhatsApp (com DDD) *</label>
-                <input required type="tel" placeholder="Ex: (11) 99999-9999" className={inputClasses} />
-              </div>
-            </div>
-          </div>
-
-          {/* Sessão 2: Perfil Profissional */}
-          <div className="space-y-6">
-            <h3 className={sectionTitleClasses}>Perfil & Atuação</h3>
-            
-            <div className="space-y-4">
-              <label className={labelClasses}>Atualmente, você se identifica como:</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                {["Empreendedor(a) / Dono(a) de negócio", "Profissional CLT", "Profissional PJ / Autônomo", "Líder / Gestor", "Estudante", "Outro"].map(opt => (
-                  <label key={opt} className="flex items-center gap-3 p-3 bg-[#111111] border border-white/5 cursor-pointer hover:border-[#C6A74A]/30 transition-all">
-                    <input type="radio" name="profile" value={opt} className="accent-[#C6A74A]" />
-                    <span className="text-white/70">{opt}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <label className={labelClasses}>Você possui empresa própria?</label>
-                <div className="flex gap-4">
-                  {["Sim", "Não"].map(opt => (
-                    <label key={opt} className="flex-1 flex items-center gap-3 p-3 bg-[#111111] border border-white/5 cursor-pointer">
-                      <input type="radio" name="hasCompany" value={opt} className="accent-[#C6A74A]" />
-                      <span className="text-white/70">{opt}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className={labelClasses}>Nome da empresa (se houver)</label>
-                <input type="text" placeholder="Sua resposta" className={inputClasses} />
-              </div>
-            </div>
-
-            <div>
-              <label className={labelClasses}>Ramo / segmento de atuação</label>
-              <input type="text" placeholder="Ex: tecnologia, saúde, comércio..." className={inputClasses} />
-            </div>
-
-            <div className="space-y-4">
-              <label className={labelClasses}>Há quanto tempo você atua nesse negócio ou carreira?</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                {["Menos de 1 ano", "1 a 3 anos", "3 a 5 anos", "Mais de 5 anos"].map(opt => (
-                  <label key={opt} className="flex items-center gap-3 p-3 bg-[#111111] border border-white/5 cursor-pointer">
-                    <input type="radio" name="experience" value={opt} className="accent-[#C6A74A]" />
-                    <span className="text-white/70">{opt}</span>
-                  </label>
-                ))}
+              <div className="md:col-span-2 space-y-2">
+                <label className={labelClasses}>WhatsApp (com DDD)</label>
+                <input required name="whatsapp" type="tel" placeholder="Ex: 11 99999 9999" className={inputClasses} disabled={isLoading} />
               </div>
             </div>
           </div>
 
-          {/* Sessão 3: Porte e Operação */}
-          <div className="space-y-6">
-            <h3 className={sectionTitleClasses}>Estrutura Atual</h3>
-            
-            <div className="space-y-4">
-              <label className={labelClasses}>Quantas pessoas trabalham na empresa?</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                {["Apenas eu", "2 a 5 pessoas", "6 a 10 pessoas", "11 a 30 pessoas", "Mais de 30 pessoas"].map(opt => (
-                  <label key={opt} className="flex items-center gap-3 p-3 bg-[#111111] border border-white/5 cursor-pointer">
-                    <input type="radio" name="teamSize" value={opt} className="accent-[#C6A74A]" />
-                    <span className="text-white/70">{opt}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <label className={labelClasses}>Como você definiria o porte do seu negócio?</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                {["Em fase inicial", "Em crescimento", "Estável", "Em reestruturação", "Ainda não tenho empresa"].map(opt => (
-                  <label key={opt} className="flex items-center gap-3 p-3 bg-[#111111] border border-white/5 cursor-pointer">
-                    <input type="radio" name="businessStage" value={opt} className="accent-[#C6A74A]" />
-                    <span className="text-white/70">{opt}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Sessão 4: Intencionalidade */}
-          <div className="space-y-6">
-            <h3 className={sectionTitleClasses}>Propósito & Desafios</h3>
-            
-            <div>
-              <label className={labelClasses}>O que te motivou a entrar nesta mentoria?</label>
-              <textarea placeholder="Sua resposta" rows={3} className={inputClasses}></textarea>
-            </div>
-
-            <div>
-              <label className={labelClasses}>Quais são suas principais expectativas?</label>
-              <textarea placeholder="Ex: clareza, crescimento espiritual, liderança..." rows={3} className={inputClasses}></textarea>
-            </div>
-
-            <div>
-              <label className={labelClasses}>Maiores desafios que você enfrenta hoje?</label>
-              <textarea placeholder="Ex: financeiros, foco, tomada de decisão..." rows={3} className={inputClasses}></textarea>
-            </div>
-
-            <div>
-              <label className={labelClasses}>Se pudesse resolver UM problema hoje, qual seria?</label>
-              <textarea placeholder="Sua resposta" rows={2} className={inputClasses}></textarea>
-            </div>
-          </div>
-
-          {/* Sessão 5: Compromisso */}
-          <div className="space-y-6 bg-[#C6A74A]/5 p-6 border border-[#C6A74A]/10">
-            <h3 className={sectionTitleClasses}>Alinhamento de Princípios</h3>
-            <label className={labelClasses}>Você está disposto(a) a aplicar princípios bíblicos mesmo que exija mudanças?</label>
-            <div className="space-y-3 text-sm">
-              {["Sim", "Sim, e estou comprometido(a)", "Ainda estou em processo"].map(opt => (
-                <label key={opt} className="flex items-center gap-3 p-3 bg-[#111111] border border-white/5 cursor-pointer hover:border-[#C6A74A]">
-                  <input type="radio" name="commitment" value={opt} className="accent-[#C6A74A]" />
-                  <span className="text-white/70">{opt}</span>
+          {/* Sessão 2: Atuação */}
+          <div className="space-y-8">
+            <h3 className={sectionTitleClasses}>02. Esfera de Atuação</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {["Empreendedor(a)", "Executivo / Gestor", "Profissional Liberal", "Líder Ministerial", "Outro"].map(opt => (
+                <label key={opt} className="flex items-center gap-4 p-4 bg-[#111111] border border-white/5 cursor-pointer hover:border-[#C6A74A]/40 transition-all group">
+                  <input type="radio" name="perfil" value={opt} className="accent-[#C6A74A] w-4 h-4" required disabled={isLoading} />
+                  <span className="text-white/60 group-hover:text-white text-sm transition-colors">{opt}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <div className="pt-6">
+          {/* Sessão 3: Intencionalidade */}
+          <div className="space-y-8">
+            <h3 className={sectionTitleClasses}>03. Intencionalidade</h3>
+            <div className="space-y-2">
+              <label className={labelClasses}>O que motiva sua subida à montanha conosco?</label>
+              <textarea 
+                name="motivacao" 
+                placeholder="Descreva brevemente sua expectativa de governo..." 
+                rows={4} 
+                className={`${inputClasses} resize-none`} 
+                disabled={isLoading}
+              ></textarea>
+            </div>
+          </div>
+
+          {/* Botão de Ação */}
+          <div className="pt-8">
             <button 
               type="submit"
-              className="w-full py-5 bg-[#C6A74A] text-[#0B1C2D] font-bold uppercase tracking-[0.2em] hover:bg-white transition-all shadow-xl active:scale-[0.98]"
+              disabled={isLoading}
+              className="w-full py-6 bg-[#C6A74A] text-[#0B1C2D] font-black uppercase tracking-[0.3em] text-sm hover:bg-white transition-all shadow-[0_20px_40px_rgba(198,167,74,0.1)] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-4"
             >
-              Confirmar Inscrição na Jornada
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Processando Dados...
+                </>
+              ) : (
+                "Confirmar Candidatura"
+              )}
             </button>
+            <p className="mt-6 text-[9px] text-center text-white/20 uppercase tracking-[0.4em] font-medium">
+              Sua privacidade é regida por nossos termos de governança.
+            </p>
           </div>
         </form>
       </div>
