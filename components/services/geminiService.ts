@@ -1,7 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-// Banco de dados expandido e dinâmico para garantir que nunca pareça estático
 const fallbacks: Record<string, string[]> = {
   "Liderança": [
     "A altitude da montanha revela o que a agitação do vale tenta esconder.",
@@ -56,36 +55,34 @@ const fallbacks: Record<string, string[]> = {
 export const getAVInsight = async (topic: string): Promise<string> => {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    // Gerador de aleatoriedade para o prompt
-    const randomAdjectives = ["imperial", "soberano", "minimalista", "cortante", "eterno", "estratégico"];
+    const randomAdjectives = ["imperial", "soberano", "minimalista", "estratégico", "eterno"];
     const adjective = randomAdjectives[Math.floor(Math.random() * randomAdjectives.length)];
     const seed = Math.random().toString(36).substring(7);
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `[CONSTRUTOR DE VISÃO AV]
+      contents: `Gere uma frase de governo AV Kingdom.
       TEMA: ${topic}.
-      ESTILO: Frase de governo ${adjective}.
-      REQUISITO: Use a dialética Montanha (Visão) vs Vale (Execução).
-      LIMITE: 85 caracteres.
-      REGRA DE OURO: Nunca repita clichês. Seja disruptivo e profundo.
-      VARIAÇÃO: Use verbos de comando no imperativo ou afirmações absolutas.
+      ESTILO: ${adjective}.
+      REQUISITO: Contraste Montanha (Visão) e Vale (Execução).
+      LIMITE: 80 caracteres.
+      REGRAS: Nunca use aspas na resposta. Nunca use a palavra "governar" de forma genérica.
+      VARIAÇÃO: Use verbos de comando.
       SEED: ${seed}.
       IDIOMA: Português BR.`,
       config: {
-        temperature: 1.0, // Máxima criatividade
+        temperature: 1.0,
         topP: 0.9,
       }
     });
     
     const text = response.text;
-    if (!text || text.length < 10) throw new Error("API noise");
+    if (!text || text.length < 5) throw new Error("API noise");
     
-    return text.trim().replace(/^"|"$/g, '');
+    // Limpeza profunda de aspas e espaços extras que podem quebrar o primeiro caractere
+    return text.trim().replace(/^["'“”‘’]|["'“”‘’]$/g, '').trim();
   } catch (error) {
-    console.warn(`[AV Service] Fallback dinâmico para ${topic}`);
     const list = fallbacks[topic] || fallbacks["Liderança"];
-    // Escolhe uma frase aleatória da lista para nunca ser a mesma
     return list[Math.floor(Math.random() * list.length)];
   }
 };
