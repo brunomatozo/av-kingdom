@@ -16,12 +16,12 @@ const Hero: React.FC<HeroProps> = ({ onStartClick }) => {
   };
 
   return (
-    <section id="vision" className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-32 pb-20 overflow-hidden scroll-mt-20">
+    <section id="vision" className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-32 pb-40 overflow-hidden scroll-mt-20">
       {/* Luz Atmosférica de Fundo */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1400px] h-[1400px] bg-[#C6A74A]/5 blur-[200px] rounded-full -z-10 animate-pulse" />
       
       <div className="max-w-7xl mx-auto space-y-16 relative z-10">
-        {/* LOGO DOMINANTE - Ajustado para equilíbrio com o novo título */}
+        {/* LOGO DOMINANTE */}
         <div className="flex justify-center transform hover:scale-105 transition-transform duration-1000 ease-out">
           <div className="relative group">
              <LogoAVMinimal className="h-48 md:h-[350px] drop-shadow-[0_0_80px_rgba(198,167,74,0.25)] animate-fade-in" />
@@ -66,10 +66,10 @@ const Hero: React.FC<HeroProps> = ({ onStartClick }) => {
         </div>
       </div>
 
-      {/* Indicador de Scroll */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-20 flex flex-col items-center gap-6">
-        <span className="text-[10px] uppercase tracking-[0.6em] text-white font-black">Descubra</span>
-        <div className="w-[1px] h-24 bg-gradient-to-b from-[#C6A74A] via-[#C6A74A]/50 to-transparent animate-shimmer" />
+      {/* Indicador de Scroll - Ajustado Opacidade e Z-index */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-6">
+        <span className="text-[10px] uppercase tracking-[0.8em] text-[#C6A74A] font-black opacity-100">Descubra</span>
+        <div className="w-[1px] h-16 bg-gradient-to-b from-[#C6A74A] via-[#C6A74A]/50 to-transparent animate-shimmer" />
       </div>
 
       <style>{`
