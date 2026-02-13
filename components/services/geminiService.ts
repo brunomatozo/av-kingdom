@@ -2,10 +2,6 @@
 import { GoogleGenAI } from "@google/genai";
 
 export const getAVInsight = async (topic: string): Promise<string> => {
-  // Inicializa a IA usando a chave de ambiente injetada pela Vercel/GitHub
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
-  
-  // Respostas de reserva (Fallback) caso a API esteja fora do ar
   const fallbacks: Record<string, string> = {
     "Liderança": "A altitude da montanha revela o que a agitação do vale tenta esconder.",
     "Finanças": "Riqueza é recurso; governo é o que transforma recurso em legado eterno.",
@@ -15,28 +11,28 @@ export const getAVInsight = async (topic: string): Promise<string> => {
     "Legado": "O legado não é o que você deixa para as pessoas, mas o que você deixa nelas."
   };
 
-  if (!process.env.API_KEY) {
-    return fallbacks[topic] || "Subimos para ouvir. Descemos para agir.";
-  }
-
   try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Aja como o Oráculo Estratégico da AV Kingdom Network. 
       Com base na filosofia "Ascend for Vision, Venture for Execution", 
-      gere um insight de governo profundo, soberano e altamente prático (máximo 120 caracteres) sobre: ${topic}. 
-      Linguagem: Português BR. Tom: Minimalista, Profético e Autoritativo. 
-      Não use emojis. Não use hashtags. Não use introduções como "Aqui está".`,
+      gere um insight de governo profundo e soberano (máximo 120 caracteres) sobre: ${topic}. 
+      Linguagem: Português BR. Tom: Minimalista e Profético. 
+      Não use emojis. Não use introduções. Não cite o tópico na resposta.`,
       config: {
-        temperature: 0.7,
-        topP: 0.9,
+        temperature: 0.8,
+        topP: 0.95,
       }
     });
     
-    // Retorna o texto limpo da resposta do Gemini
-    return response.text?.trim().replace(/^"|"$/g, '') || fallbacks[topic] || "O governo exige o equilíbrio entre a visão e a entrega.";
+    const text = response.text;
+    if (!text) throw new Error("Empty response");
+    
+    return text.trim().replace(/^"|"$/g, '');
   } catch (error) {
-    console.error("Erro Gemini:", error);
+    console.error("Erro Crítico Gemini:", error);
     return fallbacks[topic] || "O governo exige o equilíbrio entre a altitude da visão e a profundidade da entrega.";
   }
 };
