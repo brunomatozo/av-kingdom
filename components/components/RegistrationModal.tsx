@@ -18,7 +18,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
    * 2. Vá em https://sheetdb.io/ e cole o link da sua planilha lá.
    * 3. Eles vão te dar uma "API URL". Cole ela abaixo:
    */
-  const API_URL = "https://sheetdb.io/api/v1/eu9o7yopa185t"; 
+  const API_URL = "https://sheetdb.io/api/v1/0vkaq23do67my"; 
   const WHATSAPP_LINK = "https://chat.whatsapp.com/Is9XdCmQv3MJ47xulK9TZY";
 
   useEffect(() => {
@@ -49,7 +49,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
     data.data_inscricao = new Date().toLocaleString('pt-BR');
 
     try {
-      if (API_URL === "https://sheetdb.io/api/v1/eu9o7yopa185t") {
+      if (API_URL === "https://sheetdb.io/api/v1/0vkaq23do67my") {
         // Modo demonstração se não houver URL
         console.log("Simulando envio de dados:", data);
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -205,7 +205,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose }
                 "Confirmar Inscrição"
               )}
             </button>
-            {API_URL === "https://sheetdb.io/api/v1/eu9o7yopa185t" && (
+            {API_URL === "https://sheetdb.io/api/v1/0vkaq23do67my" && (
               <p className="mt-4 text-[10px] text-center text-white/30 uppercase tracking-widest">
                 Modo de Demonstração (Sem URL de API)
               </p>
