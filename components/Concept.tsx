@@ -4,7 +4,7 @@ import { COLORS } from '../constants';
 
 const Concept: React.FC = () => {
   return (
-    <section className="py-32 bg-[#111111] border-y border-white/5 relative overflow-hidden">
+    <section id="concept-section" className="py-32 bg-[#111111] border-y border-white/5 relative overflow-hidden scroll-mt-20">
       {/* Elemento Decorativo */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-[#C6A74A]/5 to-transparent pointer-events-none" />
       
