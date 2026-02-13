@@ -14,31 +14,31 @@ const GeminiInsightSection: React.FC = () => {
   const typeText = useCallback((text: string) => {
     if (typingTimerRef.current) clearInterval(typingTimerRef.current);
     
+    setDisplayedText(""); 
     let i = 0;
-    setDisplayedText(""); // Limpa antes de começar
     
-    typingTimerRef.current = setInterval(() => {
-      if (i < text.length) {
-        setDisplayedText((prev) => prev + text.charAt(i));
-        i++;
-      } else {
-        if (typingTimerRef.current) clearInterval(typingTimerRef.current);
-      }
-    }, 25);
+    // Pequeno delay para garantir o reset visual antes de começar a digitar
+    setTimeout(() => {
+      typingTimerRef.current = setInterval(() => {
+        if (i < text.length) {
+          setDisplayedText((prev) => prev + text.charAt(i));
+          i++;
+        } else {
+          if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+        }
+      }, 30);
+    }, 50);
   }, []);
 
   const fetchInsight = useCallback(async (newTopic?: string) => {
     setLoading(true);
     const targetTopic = newTopic || topic;
-    
-    // Feedback imediato: apaga o texto atual para mostrar que algo novo está vindo
     setDisplayedText(""); 
     
     try {
       const res = await getAVInsight(targetTopic);
       typeText(res);
     } catch (err) {
-      // Caso o serviço falhe e o fallback do serviço também falhe
       const safetyPhrases = [
         "O silêncio do monte precede o decreto no vale.",
         "A visão é a única bússola que não falha na altitude.",
@@ -71,13 +71,13 @@ const GeminiInsightSection: React.FC = () => {
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#C6A74A]/20 via-transparent to-transparent" />
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
+      <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
         <div className="inline-flex items-center gap-3 px-6 py-2 bg-[#C6A74A]/10 rounded-full border border-[#C6A74A]/20 mb-12">
           <Sparkles size={16} className="text-[#C6A74A]" />
           <span className="text-[11px] uppercase tracking-[0.4em] text-[#C6A74A] font-black">Revelação em Tempo Real</span>
         </div>
 
-        <div className="min-h-[220px] flex flex-col items-center justify-center">
+        <div className="min-h-[260px] flex flex-col items-center justify-center">
           {loading && !displayedText ? (
             <div className="flex flex-col items-center gap-6 animate-in fade-in duration-700">
               <div className="relative">
@@ -87,11 +87,13 @@ const GeminiInsightSection: React.FC = () => {
               <span className="text-[10px] uppercase tracking-[0.5em] text-white/30 font-bold">Consultando a Montanha...</span>
             </div>
           ) : (
-            <div className="space-y-12 w-full">
-              <div className="relative inline-block">
-                <p className="text-3xl md:text-5xl lg:text-6xl font-serif text-white italic leading-[1.3] max-w-4xl mx-auto min-h-[1.5em] px-4">
-                  {displayedText ? `"${displayedText}"` : ""}
-                  <span className="inline-block w-1.5 h-10 md:h-14 bg-[#C6A74A] ml-2 animate-pulse align-middle" />
+            <div className="space-y-12 w-full animate-in fade-in duration-500">
+              <div className="relative inline-block w-full max-w-5xl">
+                <p className="text-3xl md:text-5xl lg:text-6xl font-serif text-white italic leading-[1.4] mx-auto min-h-[1.5em] px-8 overflow-visible flex items-center justify-center flex-wrap">
+                  <span className="text-[#C6A74A] opacity-40 mr-2 not-italic">"</span>
+                  <span>{displayedText}</span>
+                  <span className="text-[#C6A74A] opacity-40 ml-1 not-italic">"</span>
+                  <span className="inline-block w-1.5 h-10 md:h-14 bg-[#C6A74A] ml-4 animate-pulse align-middle" />
                 </p>
               </div>
               
